@@ -1,4 +1,4 @@
-package com.DesafioAttornatus.service.Implementation;
+package com.DesafioAttornatus.service;
 
 import com.DesafioAttornatus.entity.Endereco;
 import com.DesafioAttornatus.entity.Pessoa;
