@@ -1,4 +1,4 @@
-package com.DesafioAttornatus.service;
+package com.DesafioAttornatus.service.Implementation;
 
 import com.DesafioAttornatus.entity.Endereco;
 import com.DesafioAttornatus.entity.Pessoa;
@@ -6,7 +6,6 @@ import com.DesafioAttornatus.exception.ResourceNotFoundException;
 import com.DesafioAttornatus.repository.EnderecoRepository;
 import com.DesafioAttornatus.repository.PessoaRepository;
 import com.DesafioAttornatus.service.PessoaService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +34,11 @@ public class PessoaServiceImp implements PessoaService {
 
     @Override
     public Pessoa modificarPessoa(Pessoa pessoa, Long id) {
-        try {
-            Pessoa pessoaAtualiza = pessoaRepository.findById(id).get();
-            atualizarDados(pessoaAtualiza, pessoa);
-            return pessoaRepository.save(pessoaAtualiza);
-        }catch (EntityNotFoundException e){
+        Optional<Pessoa> pessoaAtualiza = pessoaRepository.findById(id);
+        if (pessoaAtualiza.isPresent()){
+            atualizarDados(pessoaAtualiza.get(), pessoa);
+            return pessoaRepository.save(pessoaAtualiza.get());
+        } else{
             throw new ResourceNotFoundException(id);
         }
     }
@@ -62,32 +61,40 @@ public class PessoaServiceImp implements PessoaService {
 
     @Override
     public Endereco salvarEndereco(Endereco endereco, Long id) {
-        try {
-            Pessoa pessoa = pessoaRepository.findById(id).get();
-            adicionarEndereco(endereco, pessoa);
+        Optional<Pessoa> pessoa = pessoaRepository.findById(id);
+        if (pessoa.isPresent()) {
+            adicionarEndereco(endereco, pessoa.get());
             return endereco;
-        }catch (ResourceNotFoundException e){
+        } else {
             throw new ResourceNotFoundException(id);
         }
     }
 
-    private List<Endereco> adicionarEndereco(Endereco endereco, Pessoa pessoa) {
+    private void adicionarEndereco(Endereco endereco, Pessoa pessoa) {
         List<Endereco> enderecoList = new ArrayList<>();
         endereco.setPessoa(pessoa);
         enderecoList.add(endereco);
         pessoaRepository.save(pessoa);
-        return enderecoRepository.saveAll(enderecoList);
+        enderecoRepository.saveAll(enderecoList);
     }
 
     @Override
     public List<Endereco> buscasListaEndereco(Long id) {
-        Pessoa pessoa = pessoaRepository.findById(id).get();
-        return pessoa.getEndereco();
+        Pessoa pessoa = pessoaRepository.getOne(id);
+        if (!pessoa.getEndereco().isEmpty()) {
+            return pessoa.getEndereco();
+        } else {
+            throw new ResourceNotFoundException(id);
+        }
     }
 
     @Override
     public Endereco buscarEnderecoPrincial(Long id) {
-        List<Endereco> enderecoList = enderecoRepository.findAll();
-        return enderecoList.stream().filter(enderecoUnico -> enderecoUnico.getPrincipal().getCode().equals("Sim")).findAny().get();
+        Optional<Pessoa> pessoa = pessoaRepository.findById(id);
+        if (pessoa.isPresent()) {
+            return pessoa.get().getEndereco().stream().filter(enderecoUnico -> enderecoUnico.getPrincipal().getCode().equals("Sim")).findAny().get();
+        } else {
+            throw new ResourceNotFoundException(id);
+        }
     }
 }

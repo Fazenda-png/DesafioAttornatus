@@ -16,8 +16,7 @@ public class Endereco implements Serializable {
     private String CEP;
     private Integer numero;
     private String cidade;
-
-    private Principal principal;
+    private Principal principal = Principal.Nao;
     @ManyToOne
     @JoinColumn(name="pessoa")
     private Pessoa pessoa;
