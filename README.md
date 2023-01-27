@@ -2,10 +2,6 @@
 
 Teste realizado por João Pedro Fazenda dos Santos
 
-## Documentação
-
-swagger: 
-
 ## Para iniciar o projeto
 Você vai precisar de: 
 
