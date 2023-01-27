@@ -92,7 +92,7 @@ public class PessoaServiceImp implements PessoaService {
     public Endereco buscarEnderecoPrincial(Long id) {
         Optional<Pessoa> pessoa = pessoaRepository.findById(id);
         if (pessoa.isPresent()) {
-            return pessoa.get().getEndereco().stream().filter(enderecoUnico -> enderecoUnico.getPrincipal().getCode().equals("Sim")).findAny().get();
+            return pessoa.get().getEndereco().stream().filter(enderecoUnico -> enderecoUnico.getPrincipal().getCode().equals("Sim")).findAny().orElse(null);
         } else {
             throw new ResourceNotFoundException(id);
         }
